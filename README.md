@@ -10,6 +10,6 @@ kubectl apply -f deployment.yaml -n YourDesiredNameSpace
 Just right after the container initiation, it will try to download the genesis block and the rest of the chain. Depend on if you have already enabled external exposing of prometheus/rpc/... ports, they will be accessible to the pods and services.
 
 # /data dir
-Chain will be downloaded in this dir so we should take care of this directory as downloadingsyncing the chain is both time and resource intensive task. Using PVC and Snappshots of previously synced Volumes on the cluster may help accelerating this procedure and can be considered.
+Chain will be downloaded in this dir so we should take care of this directory as downloading/syncing the chain is both time and resource intensive task. Using PVC and Snappshots of previously synced Volumes on the cluster may help accelerating this procedure and can be considered.
 
 Readyness and Liveness probs should be considered as well but I need to know more about the application to understand which method should be implemented for each of them.
