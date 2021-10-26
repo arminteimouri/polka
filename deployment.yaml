@@ -25,7 +25,7 @@ spec:
       - image: parity/polkadot:v0.9.12
         imagePullPolicy: Always
         name: polkadot
-        args: ["--name", "arminTeimouriNode", "--chain", "westend", "--prometheus-port", "9615", "--port", "30333","--telemetry-url", "https://telemetry.polkadot.io 1"]
+        args: ["--name", "arminTeimouriNode", "--chain", "westend", "--prometheus-port", "9615", "--port", "30333", "--rpc-external", "--prometheus-external", "--telemetry-url", "https://telemetry.polkadot.io 1"]
         resources:
           requests:
             memory: "512Mi"
@@ -33,6 +33,19 @@ spec:
           limits:
             memory: "2048Mi"
             cpu: "2"
+        ports:
+          - name: prometheus
+            containerPort: 9615
+            protocol: TCP
+          - name: p2p
+            containerPort: 30333
+            protocol: TCP
+          - name: webservice
+            containerPort: 9944
+            protocol: TCP
+          - name: http-rpc
+            containerPort: 9933
+            protocol: TCP
         volumeMounts:
         - mountPath: /data
           name: test-volume
