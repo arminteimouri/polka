@@ -4,7 +4,7 @@ With Polkadot binary you can easily connect to  global Polkadot networks and def
 
 All you need to do is to apply this deployment on your k8s cluster.    
 ```sh
-kubectl apply -f deployment.yaml -n YourDesiredNameSpace
+sh run.sh
 ```
 ## How it works:
 Just right after the container initiation, it will try to download the genesis block and the rest of the chain. Depend on if you have already enabled external exposing of prometheus/rpc/... ports, they will be accessible to the pods and services.
