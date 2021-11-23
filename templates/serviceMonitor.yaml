@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "polkadot.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "polkadot.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+    {{- include "polkadot.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: prometheus
+      path: /metrics
+      interval: 10s
+      scrapeTimeout: 5s
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}

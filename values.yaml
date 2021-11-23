@@ -1,0 +1,108 @@
+# Default values for polkadot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: "parity/polkadot"
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v0.9.12"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+
+polkaNode:
+  name: "arminTeimouriNode"
+  serviceMonitor: 
+    enabled: true
+  chain: "westend"
+  port: "30333"
+  args:
+    - "--prometheus-external"
+    - "--rpc-external"
+    - "--ws-external"
+    - "--rpc-cors=all"
+    - "--telemetry-url"
+    - "https://telemetry.polkadot.io 1"
+
+ 
+securityContext:
+  # we need to use capabilities tracer utilities to findout capabilities required by
+  # polkadot and define the limits here.
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # In polkadot's DockerFile we are creating polkadot user with uid 1000
+  # so we can limit run as uid 0
+  runAsNonRoot: true
+
+
+service:
+  type: ClusterIP
+  headlessServce: 
+    enabled: true
+  port: 9944
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: arminteimouri-westend-node.teymuri.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "2048Mi"
+    ephemeral-storage: "500M"
+  requests:
+    cpu: 500m
+    memory: 512Mi
+    ephemeral-storage: "256M"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+storageClaim:
+  class: "default"
+  volumeSize: 10Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+terminationGracePeriodSeconds: 60

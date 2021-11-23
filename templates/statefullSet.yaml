@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "polkadot.fullname" . }}
+  labels:
+    {{- include "polkadot.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  serviceName: {{ include "polkadot.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "polkadot.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "polkadot.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "polkadot.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --name={{ .Values.polkaNode.name }}
+            - --base-path=/data/
+            - --chain={{ .Values.polkaNode.chain }}
+            - --port={{ .Values.polkaNode.port }}
+            {{- toYaml .Values.polkaNode.args | nindent 12 }}
+          ports:
+            - name: prometheus
+              containerPort: 9615
+              protocol: TCP
+            - name: p2p
+              containerPort: 30333
+              protocol: TCP
+            - name: websocket-rpc
+              containerPort: 9944
+              protocol: TCP
+            - name: http-rpc
+              containerPort: 9933
+              protocol: TCP
+          # allow startup prob to tolerate the possible time-consuming initial phase 
+          startupProbe:
+            failureThreshold: 20
+            periodSeconds: 20
+            httpGet:
+              path: /health
+              port: http-rpc
+          # ws endpoint seems to be reachable after full sync so we need to give it enough time.
+          readinessProbe:
+            failureThreshold: 2160
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            tcpSocket:
+              port: websocket-rpc
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data-dir
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data-dir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: {{ .Values.storageClaim.class }}
+        resources:
+          requests:
+            storage: {{ .Values.storageClaim.volumeSize }}
