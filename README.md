@@ -19,7 +19,6 @@ polkadot binary while being executed in none validator mode and captured the sys
 
 
 In order to deploy the node, All you need to do is to clone this project and change directory to it and execute the run.sh script  
-* --wait 
 ```sh
 sh run.sh
 ```
