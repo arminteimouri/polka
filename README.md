@@ -1,11 +1,41 @@
 # Simple Polkadot Node  Deployment
  
-With Polkadot binary you can easily connect to  global Polkadot networks and define your role (Full/Validator/...) and use the Built-in prometheus metrics or event send the telemetry to the telemetry defined URL (as arguments to the binary) with the desired verbosity.
+ This will deploy a polkadot not (not in validator mode). 
+We  tried to examine the Polkadot binary while it was configured to run as in none validator mode and tried to trace the kernel syscall of the binary.
+Based on the gathered data we create the polka-seccomp.json file.
+If you have configured your kubelet to support SeccompDefault feature-gate, then you will be able to place that in the seccomp profile directories of your worker nodes and then load it in your pod within the securityContext.
+```
+apiVersion: v1
+kind: Pod
+...
+...
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/polka-seccomp.json
+```  
+polkadot binary while being executed in none validator mode and captured the syscalls of the application and made a seccomp profile based on that. So on case of application compomisation, it will be hard for the attacker to do things more than the limited number of syscall available for the process.
 
-All you need to do is to apply this deployment on your k8s cluster.    
+
+In order to deploy the node, All you need to do is to clone this project and change directory to it and execute the run.sh script  
+* --wait 
 ```sh
 sh run.sh
 ```
+## How to check it after deployment:
+First check the PODs in the statefullset
+```
+kubetctl get po -n polkadot
+```
+Then run a network utils pod within the same namespace or another namespace and curl the Headless service on http-rpc port and health endpoint and see the isSyncing status and number of peers
+```
+kubectl run -i --tty --rm  networkutils --image=praqma/network-multitool --restart=Never -n polkadot -- sh
+curl polka-node-polkadot:9933/health
+```
+
+
+
 ## How it works:
 Just right after the container initiation, it will try to download the genesis block and the rest of the chain. Depend on if you have already enabled external exposing of prometheus/rpc/... ports, they will be accessible to the pods and services.
 
