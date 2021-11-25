@@ -53,11 +53,11 @@ In the case of application compromisation, it will be impossible for the attacke
 ##### But what will happen if the developers change the code and the application's logic requires extra syscalls to fulfill its runtime requirements?
 In the case of changes in the application's logic, we as the cluster administrator, need to be informed about such major changes and add those newly required syscalls to our seccomp profile.
 
-##### Why I didn't approach with `Capability sets` restriction?
+##### Why didn't I choose the `Capability sets` restriction method?
 Capability sets are not fine-grained enough and each capability covers a set of syscalls and on the other hand, there is not a magic tool out there that tells you the exact required capabilities of a binary. That is something that is expected to be provided by the developer.
 
 Although there are ways to shed light on this matter by checking `'grep Cap /proc/PID/status'` and checking the permitted and effective sets or even using "[capable tracer utility]" which comes with the BPF compiler collection.
-So if you have such a fine-grained approach in the security,  it will be much better to approach Seccomp instead of capability sets.
+So if you have such a fine-grained approach in the security,  it will be much better to comp up with Seccomp profiles instead of capability sets.
 
 ## Regarding lifecycle hooks within the Container's spec:
 I checked the Polkadot binary and traced its behavior while it received SIGINT (If the Kubernetes decides to take down the POD by any means, it will first execute the preStop hooks and later on will send a SIGINT signal to the process).
