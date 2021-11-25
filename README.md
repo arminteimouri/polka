@@ -34,7 +34,7 @@ I gave it enough time to sync the chain, and later I tried to examine the strace
 cat /strace/strace.log | cut -d"(" -f1 | awk '{print $3}' | sort -h | uniq
 ```
 Now I know what set of Syscalls the Polkadot binary is issuing to the Kernel, and  I'm able to create my SecComp profile polka-seccomp.json based on that.
-If your kubelet is configured in a way that supports `SeccompDefault feature-gate`, then you will be able to place the profile in the seccomp profile directory of your worker nodes and then load it in your pod within the securityContext.
+If your kubelet is configured in a way that supports `SeccompDefault feature gate, then you will be able to place the profile in the seccomp profile directory of your worker nodes and then load it in your pod within the securityContext.
 ```
 apiVersion: v1
 kind: Pod
@@ -50,13 +50,13 @@ spec:
 To `limit the attack vector` of a subverted process running in a container, the seccomp Linux kernel feature can be used to limit which syscalls a process has access to. We can think of that as a `firewall for syscalls.`
 In the case of application compromisation, it will be impossible for the attacker to do things more than the limited number of syscalls available for the process. We know the required syscalls by our application, and we have limited the container process to those sets of syscalls.
 
-##### But what will happen if the developers change the code and the application's logic requires extra syscalls to full-fill its runtime requirements?
-In the case of changes in the application's logic, we as the cluster administrator, need to be informed about such major change and add those newly required syscalls to our seccomp profile.
+##### But what will happen if the developers change the code and the application's logic requires extra syscalls to fulfill its runtime requirements?
+In the case of changes in the application's logic, we as the cluster administrator, need to be informed about such major changes and add those newly required syscalls to our seccomp profile.
 
-##### Why I didn't approached with `Capability sets` restriction?
-Capability sets are not fine-grained enough and each capability covers a set of syscalls and on the other hand there is not a magic tool out there which tells you the exact required capabilities of a binary. That is something which is expected to be provided by the developer.
+##### Why I didn't approach with `Capability sets` restriction?
+Capability sets are not fine-grained enough and each capability covers a set of syscalls and on the other hand, there is not a magic tool out there that tells you the exact required capabilities of a binary. That is something that is expected to be provided by the developer.
 
-Although there are ways to shed light on this matter by checking `'grep Cap /proc/PID/status'` and checking the permited and effective sets or even using "[capable tracer utility]" which comes with the BPF compiler collection.
+Although there are ways to shed light on this matter by checking `'grep Cap /proc/PID/status'` and checking the permitted and effective sets or even using "[capable tracer utility]" which comes with the BPF compiler collection.
 So if you have such a fine-grained approach in the security,  it will be much better to approach Seccomp instead of capability sets.
 
 ## Regarding lifecycle hooks within the Container's spec:
