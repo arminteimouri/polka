@@ -33,8 +33,6 @@ polkaNode:
     - "--rpc-external"
     - "--ws-external"
     - "--rpc-cors=all"
-    - "--telemetry-url"
-    - "https://telemetry.polkadot.io 1"
 
  
 securityContext:
@@ -49,24 +47,25 @@ service:
 
 ingress:
   enabled: false
-  className: ""
+  className: "ingress-nginx"
   annotations: {}
   hosts:
-    - host: arminteimouri-westend-node.teymuri.com
-      paths:
-        - path: /
-          pathType: Prefix
+#    # I assume that the given FQDN is poitning to your cluster on its DNS zone.
+#    - host: arminteimouri-westend-node.local
+#      paths:
+#        - path: /
+#          pathType: Prefix
   tls: []
 
 resources:
   limits:
-    cpu: "2"
-    memory: "2048Mi"
-    ephemeral-storage: "500M"
+    cpu: 2
+    memory: 4096Mi
+    ephemeral-storage: 500M
   requests:
     cpu: 500m
-    memory: 512Mi
-    ephemeral-storage: "256M"
+    memory: 2048Mi
+    ephemeral-storage: 256M
 
 autoscaling:
   enabled: false

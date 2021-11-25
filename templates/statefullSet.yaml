@@ -66,6 +66,14 @@ spec:
             - name: http-rpc
               containerPort: 9933
               protocol: TCP
+          # I checked the Polkadot binary and inspected its behavior while it receives SIGINT (after executing preStop hooks, Kubernetes will send 
+          # a SIGINT signal to the process). I discovered that it will cancel all background work and does a clean shutdown.
+          # So no preStop hook is needed (based on my current investigation)
+          #lifecycle:
+          #  preStop:
+          #    exec:
+          #      command:
+          
           # allow startup prob to tolerate the possible time-consuming initial phase 
           startupProbe:
             failureThreshold: 20

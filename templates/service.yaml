@@ -18,4 +18,3 @@ spec:
       name: prometheus
   selector:
     {{- include "polkadot.selectorLabels" . | nindent 4 }}
-
