@@ -28,7 +28,7 @@ We tried to examine the Polkadot binary while configured to run as in none valid
 I did it using `strace utility` against the Polkadot's PID.
 ```sh
 mkdir /strace
-strace -o /strace/strace.log -f -s4096 -r ./polkadot --name=arminTeimouriNode2 --base-path=/tmp/ --chain=westend --port=30333 --prometheus-external --rpc-external --ws-external --rpc-cors=all --telemetry-url "https://telemetry.polkadot.io 1"
+strace -o /strace/strace.log -f -s4096 -r ./polkadot --name=arminTeimouriNode2 --base-path=/tmp/ --chain=westend --port=30333 --prometheus-external --rpc-external --ws-external --rpc-cors=all"
 ```
 I gave it enough time to sync the chain, and later I tried to examine the strace.log to find out all of the syscalls made to the Kernel.
 ```sh
@@ -170,4 +170,3 @@ spec:
 
   [capable tracer utility]: <https://github.com/iovisor/bcc>
   [polka-seccomp.json]: <https://github.com/arminteimouri/polka/blob/main/polka-seccomp.json>
-  <https://kubernetes.io/blog/2021/08/25/seccomp-default/#feature-gate-enabling>
